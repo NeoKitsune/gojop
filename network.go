@@ -27,7 +27,7 @@ func (s *SimEnv) Connect(host string, port uint16) bool {
 		return false
 	}
 	go func() {
-		data = make([]byte, 2048)
+		data = make([]byte, 4096)
 		for {
 			if s.Conn == nil {
 				break
@@ -38,7 +38,8 @@ func (s *SimEnv) Connect(host string, port uint16) bool {
 				break
 			}
 			if n > 0 {
-				fmt.Printf("Server: %s\n", string(data[:n]))
+				FromMsg(data[:n])
+				//fmt.Printf("Server: %s\n", string(data[:n]))
 			}
 		}
 	}()

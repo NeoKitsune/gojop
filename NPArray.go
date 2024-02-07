@@ -1,13 +1,42 @@
 package gojop
 
 import (
+	"bytes"
 	"encoding/binary"
+	"fmt"
 	"strings"
 )
 
-var magic []byte = []byte{0x49, 0x68, 0x67, 0x1c}
+var (
+	magic      []byte = []byte{0x49, 0x68, 0x67, 0x1c}
+	nameLen           = 128
+	preHeader         = 17
+	headerSize        = nameLen + preHeader
+)
 
-func FromMsg() {
+func FromMsg(msg []byte) {
+	packets := bytes.Split(msg, magic)
+
+	for _, packet := range packets {
+		if len(packet) < 4 {
+			continue
+		}
+		msgLen := binary.LittleEndian.Uint16(packet[:4])
+		w := binary.LittleEndian.Uint16(packet[4:8])
+		h := binary.LittleEndian.Uint16(packet[8:12])
+		c := binary.LittleEndian.Uint16(packet[12:16])
+		dt := int8(packet[16])
+
+		if len(packet) < headerSize {
+			PrintHex(packet)
+			fmt.Println("ERROR")
+			continue
+		}
+		name := strings.TrimSpace(string(packet[preHeader:headerSize]))
+
+		PrintHex(packet)
+		fmt.Printf("Name: %s\n\tLen: %d w: %d h: %d c: %d dt: %d\n", name, msgLen, w, h, c, dt)
+	}
 }
 
 func PackMsg(name string, input []float32) []byte {
@@ -38,7 +67,7 @@ func PackMsg(name string, input []float32) []byte {
 	// if type is not uint8
 	out = append(out, 0x01)
 
-	paddedName := name + strings.Repeat(" ", 128-len(name))
+	paddedName := name + strings.Repeat(" ", nameLen-len(name))
 	out = append(out, []byte(paddedName)...)
 	return out
 }
