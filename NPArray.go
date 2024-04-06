@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -34,8 +35,10 @@ func FromMsg(msg []byte) {
 		}
 		name := strings.TrimSpace(string(packet[preHeader:headerSize]))
 
-		PrintHex(packet)
-		fmt.Printf("Name: %s\n\tLen: %d w: %d h: %d c: %d dt: %d\n", name, msgLen, w, h, c, dt)
+		// PrintHex(packet)
+		if false {
+			fmt.Printf("Name: %s\n\tLen: %d w: %d h: %d c: %d dt: %d\n", name, msgLen, w, h, c, dt)
+		}
 	}
 }
 
@@ -43,13 +46,15 @@ func PackMsg(name string, input []float32) []byte {
 	var out []byte
 	out = append(out, magic...)
 
+	inputBytes := Float32Arrybits(input)
+
 	//4byte len
 	bs := make([]byte, 4)
-	binary.LittleEndian.PutUint16(bs, uint16(len(input)))
+	binary.LittleEndian.PutUint16(bs, uint16(len(inputBytes)))
 	out = append(out, bs...)
 
 	// Len of 2nd dim of array? arr.shape[0]
-	binary.LittleEndian.PutUint16(bs, uint16(0))
+	binary.LittleEndian.PutUint16(bs, uint16(len(input)))
 	out = append(out, bs...)
 
 	// Len of 1st dim of array? arr.shape[1]
@@ -61,7 +66,7 @@ func PackMsg(name string, input []float32) []byte {
 	out = append(out, bs...)
 
 	// Len of 3rd dim of array? arr.shape[2]
-	binary.LittleEndian.PutUint16(bs, uint16(0))
+	binary.LittleEndian.PutUint16(bs, uint16(1))
 	out = append(out, bs...)
 
 	// if type is not uint8
@@ -69,5 +74,15 @@ func PackMsg(name string, input []float32) []byte {
 
 	paddedName := name + strings.Repeat(" ", nameLen-len(name))
 	out = append(out, []byte(paddedName)...)
+
+	out = append(out, inputBytes...)
+	return out
+}
+
+func Float32Arrybits(slice []float32) []byte {
+	var out []byte
+	for _, i := range slice {
+		out = binary.LittleEndian.AppendUint32(out, math.Float32bits(i))
+	}
 	return out
 }
