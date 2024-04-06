@@ -66,6 +66,7 @@ func (s *SimEnv) Connect(host string, port uint16) bool {
 */
 func (s *SimEnv) Send(data []byte) {
 	if s.Conn != nil {
+		PrintHex(data)
 		s.Conn.Write(data)
 	}
 }
