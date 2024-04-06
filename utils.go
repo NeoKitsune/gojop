@@ -1,17 +1,25 @@
 package gojop
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/charmbracelet/log"
+)
 
 func PrintHex(data []byte) {
+	out := "\n"
 	for i, p := range data {
 		if i%16 == 0 && i != 0 {
-			fmt.Printf(" | %s\n", stringHex(data[i-16:i]))
+			out += fmt.Sprintf(" | %s\n", stringHex(data[i-16:i]))
 		} else if i%8 == 0 && i != 0 {
-			fmt.Print(" ")
+			out += " "
+			//fmt.Print(" ")
 		}
-		fmt.Printf("%02x ", p)
+		out += fmt.Sprintf("%02x ", p)
 	}
-	fmt.Println()
+	//fmt.Println()
+	out += "\n"
+	log.Debug(out)
 }
 
 func stringHex(hs []byte) string {

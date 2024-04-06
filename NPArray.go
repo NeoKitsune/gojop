@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math"
 	"strings"
+
+	"github.com/charmbracelet/log"
 )
 
 var (
@@ -31,18 +33,18 @@ func FromMsg(msg []byte) {
 		if len(packet) < headerSize {
 			PrintHex(packet)
 			fmt.Println("ERROR")
+			log.Error("Bad Packet From Server")
 			continue
 		}
 		name := strings.TrimSpace(string(packet[preHeader:headerSize]))
 
-		// PrintHex(packet)
-		if false {
-			fmt.Printf("Name: %s\n\tLen: %d w: %d h: %d c: %d dt: %d\n", name, msgLen, w, h, c, dt)
-		}
+		PrintHex(packet)
+		log.Debugf("Name: %s\n\tLen: %d w: %d h: %d c: %d dt: %d\n", name, msgLen, w, h, c, dt)
 	}
 }
 
 func PackMsg(name string, input []float32) []byte {
+	log.Infof("CMD: %s Values: %v", name, input)
 	var out []byte
 	out = append(out, magic...)
 

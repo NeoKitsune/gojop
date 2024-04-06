@@ -3,6 +3,8 @@ package gojop
 import (
 	"fmt"
 	"net"
+
+	"github.com/charmbracelet/log"
 )
 
 var (
@@ -22,10 +24,12 @@ func (s *SimEnv) Connect(host string, port uint16) bool {
 	addr := fmt.Sprintf("%s:%d", host, port)
 	s.Conn, err = net.Dial("tcp", addr)
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
+		log.Error(err)
 		s.Conn = nil
 		return false
 	}
+	log.Info("Connected to Sim")
 	go func() {
 		data = make([]byte, 4096)
 		for {
@@ -34,7 +38,8 @@ func (s *SimEnv) Connect(host string, port uint16) bool {
 			}
 			n, err := s.Conn.Read(data)
 			if err != nil {
-				fmt.Println(err)
+				// fmt.Println(err)
+				log.Error(err)
 				break
 			}
 			if n > 0 {
@@ -63,4 +68,14 @@ func (s *SimEnv) Send(data []byte) {
 	if s.Conn != nil {
 		s.Conn.Write(data)
 	}
+}
+
+func (s *SimEnv) Disconnect() {
+	if s.Conn == nil {
+		log.Warn("Trying to close nil connection")
+		return
+	}
+	s.Conn.Close()
+	log.Info("Disconnect from Sim")
+
 }
