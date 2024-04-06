@@ -1,9 +1,11 @@
-package gojop
+package SimEnv
 
 import (
 	"fmt"
 	"net"
 
+	network "github.com/NeoKitsune/gojop/Network"
+	"github.com/NeoKitsune/gojop/utils"
 	"github.com/charmbracelet/log"
 )
 
@@ -12,38 +14,36 @@ var (
 	err  error
 )
 
-type SimEnv struct {
-	Conn net.Conn
-}
+var conn net.Conn
 
-func (s *SimEnv) Connect(host string, port uint16) bool {
-	if s.Conn != nil {
+func Connect(host string, port uint16) bool {
+	if conn != nil {
 		return true
 	}
 
 	addr := fmt.Sprintf("%s:%d", host, port)
-	s.Conn, err = net.Dial("tcp", addr)
+	conn, err = net.Dial("tcp", addr)
 	if err != nil {
 		//fmt.Println(err)
 		log.Error(err)
-		s.Conn = nil
+		conn = nil
 		return false
 	}
 	log.Info("Connected to Sim")
 	go func() {
 		data = make([]byte, 4096)
 		for {
-			if s.Conn == nil {
+			if conn == nil {
 				break
 			}
-			n, err := s.Conn.Read(data)
+			n, err := conn.Read(data)
 			if err != nil {
 				// fmt.Println(err)
 				log.Error(err)
 				break
 			}
 			if n > 0 {
-				FromMsg(data[:n])
+				network.FromMsg(data[:n])
 				//fmt.Printf("Server: %s\n", string(data[:n]))
 			}
 		}
@@ -64,19 +64,19 @@ func (s *SimEnv) Connect(host string, port uint16) bool {
 20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20
 20 20 20 20 20
 */
-func (s *SimEnv) Send(data []byte) {
-	if s.Conn != nil {
-		PrintHex(data)
-		s.Conn.Write(data)
+func Send(data []byte) {
+	if conn != nil {
+		utils.PrintHex(data)
+		conn.Write(data)
 	}
 }
 
-func (s *SimEnv) Disconnect() {
-	if s.Conn == nil {
+func Disconnect() {
+	if conn == nil {
 		log.Warn("Trying to close nil connection")
 		return
 	}
-	s.Conn.Close()
+	conn.Close()
 	log.Info("Disconnect from Sim")
 
 }

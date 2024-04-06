@@ -1,4 +1,4 @@
-package gojop
+package network
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"math"
 	"strings"
 
+	"github.com/NeoKitsune/gojop/utils"
 	"github.com/charmbracelet/log"
 )
 
@@ -31,14 +32,14 @@ func FromMsg(msg []byte) {
 		dt := int8(packet[16])
 
 		if len(packet) < headerSize {
-			PrintHex(packet)
+			utils.PrintHex(packet)
 			fmt.Println("ERROR")
 			log.Error("Bad Packet From Server")
 			continue
 		}
 		name := strings.TrimSpace(string(packet[preHeader:headerSize]))
 
-		PrintHex(packet)
+		utils.PrintHex(packet)
 		log.Debugf("Name: %s\n\tLen: %d w: %d h: %d c: %d dt: %d\n", name, msgLen, w, h, c, dt)
 	}
 }

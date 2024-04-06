@@ -1,4 +1,4 @@
-package gojop
+package utils
 
 import (
 	"fmt"
