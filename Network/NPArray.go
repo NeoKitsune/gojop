@@ -3,10 +3,10 @@ package network
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"math"
 	"strings"
 
+	entitybase "github.com/NeoKitsune/gojop/EntityBase"
 	"github.com/NeoKitsune/gojop/utils"
 	"github.com/charmbracelet/log"
 )
@@ -21,6 +21,7 @@ var (
 func FromMsg(msg []byte) {
 	packets := bytes.Split(msg, magic)
 
+	arr := []string{}
 	for _, packet := range packets {
 		if len(packet) < 4 {
 			continue
@@ -32,16 +33,18 @@ func FromMsg(msg []byte) {
 		dt := int8(packet[16])
 
 		if len(packet) < headerSize {
-			utils.PrintHex(packet)
-			fmt.Println("ERROR")
-			log.Error("Bad Packet From Server")
+			d := utils.PrettyHex(packet)
+			// fmt.Println("ERROR")
+			log.Error("Bad Packet From Server" + d)
 			continue
 		}
 		name := strings.TrimSpace(string(packet[preHeader:headerSize]))
 
 		utils.PrintHex(packet)
 		log.Debugf("Name: %s\n\tLen: %d w: %d h: %d c: %d dt: %d\n", name, msgLen, w, h, c, dt)
+		arr = append(arr, name)
 	}
+	entitybase.SyncIncomingData(arr)
 }
 
 func PackMsg(name string, input []float32) []byte {

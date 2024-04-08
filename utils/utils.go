@@ -7,6 +7,10 @@ import (
 )
 
 func PrintHex(data []byte) {
+	log.Debug(PrettyHex(data))
+}
+
+func PrettyHex(data []byte) string {
 	out := "\n"
 	for i, p := range data {
 		if i%16 == 0 && i != 0 {
@@ -19,7 +23,7 @@ func PrintHex(data []byte) {
 	}
 	//fmt.Println()
 	out += "\n"
-	log.Debug(out)
+	return out
 }
 
 func stringHex(hs []byte) string {

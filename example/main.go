@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	. "github.com/NeoKitsune/gojop"
 	network "github.com/NeoKitsune/gojop/Network"
@@ -18,6 +19,8 @@ func main() {
 	simManager := SimEnvManager{}
 	simManager.Reset()
 
+	time.Sleep(5 * time.Second)
+	log.Print(FindAll("ConveyorBelt"))
 	speed := []float32{5}
 	SimEnv.Send(network.PackMsg("ConveyorBelt._entityConveyorBelt0.setTargetSpeed", speed))
 
